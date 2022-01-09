@@ -6,13 +6,16 @@ public class MainCamera : MonoBehaviour
 {
 
     [SerializeField] private GameObject car;
-    private Vector3 camDistance = new Vector3(0, 13, -10);
+    private Vector3 camDistance = new Vector3(0, 5, -10);
+    private Transform offset;
 
-    // Start is called before the first frame update
+    // Start is called before the first frame updatexs
     void Start()
     {
-        
-        //gameObject.transform.position = car.transform.position + camDistance; 
+
+        //gameObject.transform.position = car.transform.position + camDistance;
+        offset = car.transform;
+        offset.position += new Vector3(0, 0, 10);
     }
 
     // Update is called once per frame
@@ -23,9 +26,8 @@ public class MainCamera : MonoBehaviour
 
         //instead of looking directly at the car
         //look slightly above the car
-        //Transform offset = car.transform;
-        //offset.position = new Vector3(car.transform.position.x, 3, car.transform.position.z);
-        gameObject.transform.LookAt(car.transform);
+        
+        gameObject.transform.LookAt(offset);
 
     }
 }
