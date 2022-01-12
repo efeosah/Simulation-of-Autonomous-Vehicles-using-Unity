@@ -17,6 +17,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float motorForce;
     [SerializeField] private float breakForce;
     [SerializeField] private float maxSteerAngle;
+    private float throttle;
 
 
     //f :: Front
@@ -48,17 +49,25 @@ public class CarController : MonoBehaviour
     //fiexd update better for physics calculations
     private void FixedUpdate()
     {
-        GetInput();
-        HandleMotor();
-        HandleSteering();
-        HandleWheel();
+
+        if(!isTraining)
+        {
+            GetInput();
+            HandleMotor();
+            HandleSteering();
+            HandleWheel();
+        }
+
+        //Debug.Log(throttle);
 
     }
 
     private void HandleMotor()
     {
-        FLWheelCollider.motorTorque = verticalInput * motorForce;
-        FRWheelCollider.motorTorque = verticalInput * motorForce;
+        throttle = verticalInput * motorForce;
+        FLWheelCollider.motorTorque = throttle;
+        FRWheelCollider.motorTorque = throttle;
+
         currentBreakForce = isBreaking ? breakForce : 0.0f;
         ApplyBreaks();
     }
@@ -92,6 +101,11 @@ public class CarController : MonoBehaviour
         
     }
 
+    public float GetCurThrottle()
+    {
+        return throttle;
+    }
+
     private void HandleSteering()
     {
         currentSteerAngle = maxSteerAngle * horizontalIput;
@@ -110,5 +124,10 @@ public class CarController : MonoBehaviour
         horizontalIput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
         isBreaking = Input.GetKey(KeyCode.Space);
+    }
+
+    public float GetCurSteeringAngle()
+    {
+        return currentSteerAngle;
     }
 }
