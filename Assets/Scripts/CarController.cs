@@ -6,7 +6,10 @@ using UnityEngine;
 public class CarController : MonoBehaviour
 {
 
-    bool isTraining;
+    //boolean flags to handle scene
+    bool modeSelected;
+    bool isManualDrive;
+    bool isPIDTrain;
 
     private float horizontalIput;
     private float verticalInput;
@@ -18,6 +21,8 @@ public class CarController : MonoBehaviour
     [SerializeField] private float breakForce;
     [SerializeField] private float maxSteerAngle;
     private float throttle;
+
+    private Rigidbody rb;
 
 
     //f :: Front
@@ -35,7 +40,10 @@ public class CarController : MonoBehaviour
     [SerializeField] private Transform BRWheelTransform;
 
 
-
+    private void Awake()
+    {
+        rb = gameObject.GetComponent<Rigidbody>();
+    }
 
     //movement variables
 
@@ -50,7 +58,17 @@ public class CarController : MonoBehaviour
     private void FixedUpdate()
     {
 
-        if(!isTraining)
+        if(!modeSelected)
+        {
+            isManualDrive = false;
+            isPIDTrain = false;
+
+            currentBreakForce = breakForce;
+            ApplyBreaks();
+            return;
+        }
+
+        if(isManualDrive)
         {
             GetInput();
             HandleMotor();
@@ -58,12 +76,21 @@ public class CarController : MonoBehaviour
             HandleWheel();
         }
 
+        if(isPIDTrain)
+        {
+
+        }
+
+
+
         //Debug.Log(throttle);
 
     }
 
     private void HandleMotor()
     {
+
+        Debug.Log(rb.velocity.magnitude);
         throttle = verticalInput * motorForce;
         FLWheelCollider.motorTorque = throttle;
         FRWheelCollider.motorTorque = throttle;
@@ -129,5 +156,15 @@ public class CarController : MonoBehaviour
     public float GetCurSteeringAngle()
     {
         return currentSteerAngle;
+    }
+
+    public void ToggleManualDrive()
+    {
+        isManualDrive = !isManualDrive;
+    }
+
+    public void ToggleModeSelect()
+    {
+        modeSelected = !modeSelected;
     }
 }

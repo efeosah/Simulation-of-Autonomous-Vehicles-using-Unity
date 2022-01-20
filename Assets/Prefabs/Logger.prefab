@@ -45,6 +45,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CamSensor1: {fileID: 0}
   curFrameCount: 0
-  maxFrameCount: 0
-  car: {fileID: 0}
+  maxFrameCount: 10000
   isLog: 1

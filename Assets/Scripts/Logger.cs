@@ -18,7 +18,7 @@ public class Logger : MonoBehaviour
 
     [SerializeField] int curFrameCount = 0;
     public int maxFrameCount;
-    [SerializeField] GameObject car;
+    //[SerializeField] GameObject car;
     private CarController carControl;
     private float timeSinceLastLog = 0.0f;
  
@@ -52,9 +52,9 @@ public class Logger : MonoBehaviour
 
     private void Awake()
     {
-        maxFrameCount = 10000;
+        //maxFrameCount = 10000;
 
-        carControl = car.GetComponent<CarController>();
+        carControl = gameObject.GetComponentInParent<CarController>();
         
 
         if(isLog && carControl != null)
