@@ -11,16 +11,17 @@ using UnityEngine.UI;
 public class GUIHandler : MonoBehaviour
 {
     //car controller game object
-    CarController car;
+    Car car;
 
     //gameobjects to reference panels
     public GameObject infoPanel;
-    public GameObject PIDContoller; //TODO
+    public GameObject PIDController; //TODO
     public GameObject Logger;
     public GameObject NetworkSteering; //TODO
     public GameObject menuPanel;
     public GameObject stopPanel;
-    public GameObject PIDControls; //TODO
+    public GameObject ManualController; //TODO
+    public GameObject Controllers;
 
 
     //boolean flags for modes
@@ -46,9 +47,34 @@ public class GUIHandler : MonoBehaviour
         stopPanel = canvas.transform.Find("StopPanel").gameObject;
 
 
-        car = GameObject.FindObjectOfType<CarController>();
+        car = GameObject.FindObjectOfType<Car>();
         rb = GameObject.FindObjectOfType<RoadBuilder>();
         pm = GameObject.FindObjectOfType<PathManager>();
+
+        Controllers = car.gameObject.transform.GetChild(0).gameObject;
+        if(Controllers != null)
+        {
+            ManualController = Controllers.transform.GetChild(0).gameObject;
+            PIDController = Controllers.transform.GetChild(1).gameObject;
+            Logger = Controllers.transform.GetChild(2).gameObject;
+
+            if (ManualController != null)
+            {
+                ManualController.SetActive(false);
+            }
+
+            if(PIDController != null)
+            {
+                PIDController.SetActive(false);
+            }
+
+            if(Logger != null)
+            {
+                Logger.SetActive(false);
+            }
+        }
+
+        Debug.Log(car.gameObject.transform.GetChild(0));
 
     }
 
@@ -72,18 +98,14 @@ public class GUIHandler : MonoBehaviour
     private void UpdateInfoPanel()
     {
         //variables/info to show on left panel
-        float steering = 0;
+        float steering = car.GetSteering();
         string mode = curMode;
-        float speed;
-        float throttle;
 
 
         //write infor into text object 
         infoPanel.GetComponentInChildren<Text>().text =
 
             "Steering: " + steering.ToString() + "\n" +
-            "Speed:   " + "\n" +
-            "Throttle:   " + "\n" +
             "Mode:    " + mode + "\n";
 
     }
@@ -98,15 +120,25 @@ public class GUIHandler : MonoBehaviour
         //reset to beginnign of track
         //GameObject StartPos
 
-        car.transform.position = new Vector3(0, 0, 0);
-        car.transform.rotation = Quaternion.identity;
+        car.transform.position = car.startPos;
+        car.transform.rotation = car.startRot;
     }
 
     public void OnManualTrain()
     {
+        if (stopPanel != null)
+        {
+            stopPanel.SetActive(true);
+        }
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
         //set manual train only
-
+        ManualController.SetActive(true);
+        Logger.SetActive(true);
         curMode = "Manual Training";
+
     }
 
     public void OnManualDrive()
@@ -120,8 +152,9 @@ public class GUIHandler : MonoBehaviour
         {
             menuPanel.SetActive(false);
         }
-        car.ToggleManualDrive();
-        car.ToggleModeSelect();
+        //car.ToggleManualDrive();
+        //car.ToggleModeSelect();
+        ManualController.SetActive(true);
         curMode = "Manual Driving";
 
     }
@@ -129,13 +162,32 @@ public class GUIHandler : MonoBehaviour
     public void OnPIDTrain()
     {
         //set PID train only
+        if (stopPanel != null)
+        {
+            stopPanel.SetActive(true);
+        }
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
 
+        PIDController.SetActive(true);
+        Logger.SetActive(true);
         curMode = "PID Training";
     }
 
     public void OnPIDDrive()
     {
+        if (stopPanel != null)
+        {
+            stopPanel.SetActive(true);
+        }
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
         //set PID drive only
+        PIDController.SetActive(true);
         curMode = "PID Driving";
     }
 
@@ -151,7 +203,31 @@ public class GUIHandler : MonoBehaviour
             menuPanel.SetActive(true);
         }
 
-        car.ToggleModeSelect();
+        if(curMode == "Manual Driving")
+        {
+            ManualController.SetActive(false);
+        }
+
+        if (curMode == "PID Driving")
+        {
+            PIDController.SetActive(false);
+        }
+
+        if (curMode == "PID Training")
+        {
+            PIDController.SetActive(false);
+            Logger.SetActive(false);
+        }
+
+        if (curMode == "Manual Training")
+        {
+            ManualController.SetActive(false);
+            Logger.SetActive(false);
+        }
+
+
+        //car.ToggleModeSelect();
+
         curMode = "None";
     }
 

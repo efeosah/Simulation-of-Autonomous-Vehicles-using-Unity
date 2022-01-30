@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Threading;
+
 
 public class Logger : MonoBehaviour
 {
@@ -14,12 +16,12 @@ public class Logger : MonoBehaviour
     /// Currently saving image and steering data 
     /// </summary>
 
-    [SerializeField] Camera CamSensor1;
+    public CameraSensor CamSensor1;
 
-    [SerializeField] int curFrameCount = 0;
+    public int curFrameCount = 0;
     public int maxFrameCount;
     //[SerializeField] GameObject car;
-    private CarController carControl;
+    private Car carControl;
     private float timeSinceLastLog = 0.0f;
  
 
@@ -28,8 +30,18 @@ public class Logger : MonoBehaviour
     private StreamWriter sw;
 
     private string filename = "driving_log.csv";
-    
- 
+
+    class ImageSaveJob
+    {
+        public string filename;
+        public byte[] bytes;
+    }
+
+    List<ImageSaveJob> imagesToSave;
+
+    Thread thread;
+
+
 
     [SerializeField] private bool isLog = true;
 
@@ -54,7 +66,7 @@ public class Logger : MonoBehaviour
     {
         //maxFrameCount = 10000;
 
-        carControl = gameObject.GetComponentInParent<CarController>();
+        carControl = gameObject.GetComponentInParent<Car>();
         
 
         if(isLog && carControl != null)
@@ -67,10 +79,11 @@ public class Logger : MonoBehaviour
         }
 
 
-        
-        
 
+        imagesToSave = new List<ImageSaveJob>();
 
+        thread = new Thread(SaverThread);
+        thread.Start();
     }
 
     // Update is called once per frame
@@ -94,6 +107,7 @@ public class Logger : MonoBehaviour
         timeSinceLastLog -= (1.0f / FPS);
 
         LogDataToCSV();
+        SaveCamSensor(CamSensor1, "");
 
         if (curFrameCount >= maxFrameCount)
         {
@@ -114,16 +128,67 @@ public class Logger : MonoBehaviour
     private void LogDataToCSV()
     {
         //data we wish to collect
-        float curSteerAngle = carControl.GetCurSteeringAngle();
-        float curThrottle = carControl.GetCurThrottle();
+        float curSteerAngle = carControl.GetSteering();
+        float curThrottle = carControl.GetThrottle();
+        float curBrake = carControl.GetHandBrake();
         string camImage = "CenterCam_" + curFrameCount;
 
-        Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString());
+        //Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString());
 
-        sw.WriteLine(string.Format("{0},{1},{2}", camImage, curSteerAngle.ToString(), curThrottle.ToString()));
+        sw.WriteLine(string.Format("{0},{1},{2},{3}", camImage, curSteerAngle.ToString(), curThrottle.ToString(), curBrake.ToString()));
     }
 
-   
+    //Save the camera sensor to an image. Use the suffix to distinguish between cameras.
+    void SaveCamSensor(CameraSensor cs, string prefix)
+    {
+        if (cs != null)
+        {
+            Texture2D image = cs.GetImage();
+
+            ImageSaveJob ij = new ImageSaveJob();
+
+
+            ij.filename = GetFilePath() + "CenterCam_" + curFrameCount+ ".png"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+            Debug.Log(ij.filename);
+
+            ij.bytes = image.EncodeToPNG();
+            
+
+            lock (this)
+            {
+                imagesToSave.Add(ij);
+            }
+        }
+    }
+
+    public void SaverThread()
+    {
+        while (true)
+        {
+            int count = 0;
+
+            lock (this)
+            {
+                count = imagesToSave.Count;
+            }
+
+            if (count > 0)
+            {
+                ImageSaveJob ij = imagesToSave[0];
+
+                //Debug.Log("saving: " + ij.filename);
+
+                File.WriteAllBytes(ij.filename, ij.bytes);
+
+                lock (this)
+                {
+                    imagesToSave.RemoveAt(0);
+                }
+            }
+        }
+    }
+
+
     public void Togglelogger()
     {
         //if isLog is true; isLog = false
