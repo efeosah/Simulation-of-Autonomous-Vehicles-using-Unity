@@ -130,6 +130,7 @@ public class Logger : MonoBehaviour
         //data we wish to collect
         float curSteerAngle = carControl.GetSteering();
         float curThrottle = carControl.GetThrottle();
+        //float curSpeed = carControl.GetVelocity();
         float curBrake = carControl.GetHandBrake();
         string camImage = "CenterCam_" + curFrameCount;
 
