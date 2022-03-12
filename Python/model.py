@@ -6,7 +6,7 @@ import torch
 import torch.nn as nn
 
 
-class Reflex_CNN(nn.Module):
+class CNN(nn.Module):
 
     def __init__(self):
         super().__init__()

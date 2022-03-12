@@ -217,7 +217,7 @@ public class Car : MonoBehaviour, ICar{
 		float steerAngle = requestSteering;
         float brake = requestBrake * maxBreakTorque;
 
-		Debug.Log(velocity.magnitude/maxSpeed);
+		//Debug.Log(velocity.magnitude/maxSpeed);
 
 		//front two tires.
 		wheelColliders[2].steerAngle = steerAngle;

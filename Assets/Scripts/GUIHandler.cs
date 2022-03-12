@@ -17,7 +17,7 @@ public class GUIHandler : MonoBehaviour
     public GameObject infoPanel;
     public GameObject PIDController; //TODO
     public GameObject Logger;
-    public GameObject NetworkSteering; //TODO
+    public GameObject NetworkSteering;
     public GameObject menuPanel;
     public GameObject stopPanel;
     public GameObject ManualController; //TODO
@@ -36,6 +36,9 @@ public class GUIHandler : MonoBehaviour
     //roadbuilder object to manage track
     RoadBuilder rb;
     PathManager pm;
+
+    //client object
+    public Server client;
 
 
     private void Awake()
@@ -58,6 +61,7 @@ public class GUIHandler : MonoBehaviour
             PIDController = Controllers.transform.GetChild(1).gameObject;
             Logger = Controllers.transform.GetChild(2).gameObject;
 
+
             if (ManualController != null)
             {
                 ManualController.SetActive(false);
@@ -74,7 +78,25 @@ public class GUIHandler : MonoBehaviour
             }
         }
 
-        Debug.Log(car.gameObject.transform.GetChild(0));
+        //client = GameObject.FindObjectOfType<Server>();
+        if (client != null)
+        {
+            //Debug.Log("Not Empty");
+
+            NetworkSteering = client.gameObject;
+            if (NetworkSteering == null)
+            {
+                //NetworkSteering.SetActive(false);
+            }
+        }
+        else
+        {
+            Debug.Log("Empty");
+        }
+        //if (NetworkSteering == null)
+        //{
+        //    Debug.Log("Empty");
+        //}
 
     }
 
@@ -191,6 +213,23 @@ public class GUIHandler : MonoBehaviour
         curMode = "PID Driving";
     }
 
+    public void onNNSteering()
+    {
+        if (stopPanel != null)
+        {
+            stopPanel.SetActive(true);
+        }
+        if (menuPanel != null)
+        {
+            menuPanel.SetActive(false);
+        }
+        //set PID drive only
+        //NetworkSteering.SetActive(true);
+        //client.Connect();
+
+        curMode = "NN Steering";
+    }
+
     public void OnStop()
     {
         if(stopPanel != null)
@@ -223,6 +262,11 @@ public class GUIHandler : MonoBehaviour
         {
             ManualController.SetActive(false);
             Logger.SetActive(false);
+        }
+
+        if (curMode == "NN Steering")
+        {
+            NetworkSteering.SetActive(false);
         }
 
 

@@ -132,7 +132,7 @@ public class Logger : MonoBehaviour
         float curThrottle = carControl.GetThrottle();
         //float curSpeed = carControl.GetVelocity();
         float curBrake = carControl.GetHandBrake();
-        string camImage = "CenterCam_" + curFrameCount;
+        string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".png";
 
         //Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString());
 
@@ -145,6 +145,7 @@ public class Logger : MonoBehaviour
         if (cs != null)
         {
             Texture2D image = cs.GetImage();
+            //image.GetPixelData
 
             ImageSaveJob ij = new ImageSaveJob();
 
@@ -153,7 +154,6 @@ public class Logger : MonoBehaviour
             Debug.Log(ij.filename);
 
             ij.bytes = image.EncodeToPNG();
-            
 
             lock (this)
             {
