@@ -47,6 +47,12 @@ public class PathManager : MonoBehaviour
 
     void Awake()
     {
+        
+    }
+
+    //create road in start not awake to counter conflict with thread dispatcher
+    private void Start()
+    {
         if (sameRandomPath)
             Random.InitState(randSeed);
 
@@ -128,7 +134,7 @@ public class PathManager : MonoBehaviour
 
         // execute in the next update loop
         UnityMainThreadDispatcher.Instance().Enqueue(InitAfterCarPathLoaded(initAfterCarPathLoaded));
-        UnityMainThreadDispatcher.Instance().Enqueue(InitAfterCarPathLoaded(challenges));
+        //UnityMainThreadDispatcher.Instance().Enqueue(InitAfterCarPathLoaded(challenges));
 
         // if (locationMarkerPrefab != null && carPath != null)
         // {

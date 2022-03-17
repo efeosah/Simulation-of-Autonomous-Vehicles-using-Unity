@@ -278,6 +278,7 @@ public class GUIHandler : MonoBehaviour
     public void OnExit()
     {
         //End game here
-        Application.Quit();
+        //Application.Quit();
+        UnityEditor.EditorApplication.isPlaying = false;
     }
 }

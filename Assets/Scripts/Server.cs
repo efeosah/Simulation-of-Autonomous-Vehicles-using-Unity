@@ -74,8 +74,9 @@ public class Server : MonoBehaviour
 				//Debug.Log(_carController.GetSteering().ToString("N4"));
 				data["throttle"] = _carController.GetThrottle().ToString("N4");
 				data["speed"] = _carController.GetVelocity().ToString("N4");
+				//Debug.Log("WE got her");
 				data["image"] = Convert.ToBase64String(FrontFacingCamera.GetImageBytes());
-				_socket.Emit("telemetry", new JSONObject(data));
+                _socket.Emit("telemetry", new JSONObject(data));
 			}
 		});
 
