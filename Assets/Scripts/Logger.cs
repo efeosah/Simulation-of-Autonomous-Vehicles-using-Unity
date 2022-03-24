@@ -134,9 +134,14 @@ public class Logger : MonoBehaviour
         float curBrake = carControl.GetHandBrake();
         string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".png";
 
-        //Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString());
+        Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString()
+            + " Brake: " + curBrake.ToString() + " Image Link: " + camImage);
+        //if (!(curSteerAngle == 0 || curThrottle == 0 || curBrake == 0))
+        //{
 
+        //}
         sw.WriteLine(string.Format("{0},{1},{2},{3}", camImage, curSteerAngle.ToString(), curThrottle.ToString(), curBrake.ToString()));
+        sw.Flush();
     }
 
     //Save the camera sensor to an image. Use the suffix to distinguish between cameras.

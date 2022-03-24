@@ -40,30 +40,33 @@ public class Server : MonoBehaviour
 	// 
 	void onManual(SocketIOEvent obj)
 	{
-		EmitTelemetry(obj);
 		Debug.Log("Manual");
+		EmitTelemetry(obj);
+		
 	}
 
 	void OnSteer(SocketIOEvent obj)
 	{
+		//Debug.Log(">>>");
 		JSONObject jsonObject = obj.data;
 		//    print(float.Parse(jsonObject.GetField("steering_angle").str));
 		carController.RequestSteering(float.Parse(jsonObject.GetField("steering_angle").str));
 		carController.RequestThrottle(float.Parse(jsonObject.GetField("throttle").str));
 		EmitTelemetry(obj);
-		Debug.Log(">>>");
+		
 
 	}
 
 	void EmitTelemetry(SocketIOEvent obj)
 	{
-		Debug.Log("Emit");
+		//Debug.Log("Emit");
 		UnityMainThreadDispatcher.Instance().Enqueue(() =>
 		{
 			print("Attempting to Send...");
 			// send only if it's not being manually driven
 			if ((Input.GetKey(KeyCode.W)) || (Input.GetKey(KeyCode.S)))
 			{
+				//print("Manual");
 				_socket.Emit("telemetry", new JSONObject());
 			}
 			else
@@ -73,8 +76,13 @@ public class Server : MonoBehaviour
 				data["steering_angle"] = _carController.GetSteering().ToString("N4");
 				//Debug.Log(_carController.GetSteering().ToString("N4"));
 				data["throttle"] = _carController.GetThrottle().ToString("N4");
-				data["speed"] = _carController.GetVelocity().ToString("N4");
+				data["speed"] = _carController.GetVelocity().magnitude.ToString("N4");
 				//Debug.Log("WE got her");
+				//print(data.Values.ToString());
+				foreach (KeyValuePair<string, string> kvp in data)
+				{
+					print(string.Format("Key = {0}, Value = {1}", kvp.Key, kvp.Value));
+				}
 				data["image"] = Convert.ToBase64String(FrontFacingCamera.GetImageBytes());
                 _socket.Emit("telemetry", new JSONObject(data));
 			}
