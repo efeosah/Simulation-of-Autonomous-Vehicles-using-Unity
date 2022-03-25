@@ -16,7 +16,9 @@ public class Logger : MonoBehaviour
     /// Currently saving image and steering data 
     /// </summary>
 
-    public CameraSensor CamSensor1;
+    public CameraSensor CamSensor_Centre;
+    public CameraSensor CamSensor_Left;
+    public CameraSensor CamSensor_Right;
 
     public int curFrameCount = 0;
     public int maxFrameCount;
@@ -107,7 +109,10 @@ public class Logger : MonoBehaviour
         timeSinceLastLog -= (1.0f / FPS);
 
         LogDataToCSV();
-        SaveCamSensor(CamSensor1, "");
+        SaveCamSensor(CamSensor_Centre, "CenterCam_");
+        SaveCamSensor(CamSensor_Left, "LeftCam_");
+        SaveCamSensor(CamSensor_Right, "RightCam_");
+
 
         if (curFrameCount >= maxFrameCount)
         {
@@ -133,6 +138,8 @@ public class Logger : MonoBehaviour
         //float curSpeed = carControl.GetVelocity();
         float curBrake = carControl.GetHandBrake();
         string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".png";
+        string camImage_Left = GetFilePath() + "LeftCam_" + curFrameCount + ".png";
+        string camImage_Right = GetFilePath() + "RightCam_" + curFrameCount + ".png";
 
         Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString()
             + " Brake: " + curBrake.ToString() + " Image Link: " + camImage);
@@ -140,7 +147,7 @@ public class Logger : MonoBehaviour
         //{
 
         //}
-        sw.WriteLine(string.Format("{0},{1},{2},{3}", camImage, curSteerAngle.ToString(), curThrottle.ToString(), curBrake.ToString()));
+        sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5}", camImage,camImage_Left,camImage_Right, curSteerAngle.ToString(), curThrottle.ToString(), curBrake.ToString()));
         sw.Flush();
     }
 
@@ -155,7 +162,8 @@ public class Logger : MonoBehaviour
             ImageSaveJob ij = new ImageSaveJob();
 
 
-            ij.filename = GetFilePath() + "CenterCam_" + curFrameCount+ ".png"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+            ij.filename = GetFilePath() + prefix + curFrameCount + ".png"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+
             Debug.Log(ij.filename);
 
             ij.bytes = image.EncodeToPNG();
