@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9041572297540189567
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7528389186877485285}
+  - component: {fileID: 2566539402953421364}
+  m_Layer: 0
+  m_Name: CarSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7528389186877485285
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9041572297540189567}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 72.25, y: 327, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2566539402953421364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9041572297540189567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2979670573b804dd69184bda35ade2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathManager: {fileID: 0}
+  carPrefab: {fileID: 1767182081105532028, guid: 8c6b2f51900d249d58b100ea79c0a83d, type: 3}
+  startsTm:
+  - {fileID: 0}
+  EnableTrainingManager: 0
+  numCarRows: 2
+  distCarCols: 4.5
+  distCarRows: 5
+  mainCamera: {fileID: 0}
+  splitScreenCamPrefab: {fileID: 6213253239964628506, guid: 46f462748a4b54c648f75c395b54b7e6, type: 3}
+  splitScreenOHCamPrefab: {fileID: 0}
+  SplitScreenWidth: 2
+  raceCameras: {fileID: 7154118875383473898, guid: 8822557244f2e4626853cb0f6577122e, type: 3}
+  racerStatusPrefab: {fileID: 0}
+  raceStatusPanel: {fileID: 0}
+  cars: []
+  cameras: []

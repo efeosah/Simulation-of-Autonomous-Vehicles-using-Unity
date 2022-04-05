@@ -27,10 +27,13 @@ class Extract(Dataset):
         set = self.data[index]
 
         item = {
-            'cam' : set[0],
-            'steering_angle' : float(set[1]),
-            'throttle' : float(set[2]),
-            'brake' : float(set[3])
+            'img_center_pth': set[0],
+            'img_left_pth': set[1],
+            'img_right_pth': set[2],
+            'steering_angle' : float(set[3]),
+            'throttle' : float(set[4]),
+            'brake' : float(set[5]),
+            'speed' : float(set[6])
         }
 
         return item

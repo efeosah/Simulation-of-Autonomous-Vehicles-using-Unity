@@ -7,12 +7,11 @@ IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS = 66, 200, 3
 INPUT_SHAPE = (IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANNELS)
 
 
-def load_image(data_dir):
+def load_image(data_dir, image_file):
     """
     Load RGB images from a file
     """
-    # return mpimg.imread(os.path.join(data_dir, image_file.strip()))
-    return mpimg.imread(data_dir)
+    return mpimg.imread(os.path.join(data_dir, image_file.strip()))
 
 
 def crop(image):
@@ -46,20 +45,17 @@ def preprocess(image):
     return image
 
 
-def choose_image(data_dir, steering_angle):
+def choose_image(steering_angle):
     """
     Randomly choose an image from the center, left or right, and adjust
     the steering angle.
     """
-    # choice = np.random.choice(3)
-    # if choice == 0:
-    #     return load_image(data_dir, left), steering_angle + 0.2
-    # elif choice == 1:
-    #     return load_image(data_dir, right), steering_angle - 0.2
-    # print(data_dir)
-    # # print(center)
-    # print(steering_angle)
-    return load_image(data_dir), steering_angle
+    choice = np.random.choice(3)
+    if choice == 0:
+        return "img_left_pth", float(steering_angle) + 0.2
+    elif choice == 1:
+        return "img_right_pth", float(steering_angle) - 0.2
+    return "img_center_pth", float(steering_angle)
 
 
 def random_flip(image, steering_angle):
@@ -68,17 +64,17 @@ def random_flip(image, steering_angle):
     """
     if np.random.rand() < 0.5:
         image = cv2.flip(image, 1)
-        steering_angle = 0 - steering_angle
+        steering_angle = -steering_angle
     return image, steering_angle
 
 
 def random_translate(image, steering_angle, range_x, range_y):
     """
-    Randomly shift the image vertically and horizontally (translation).
+    Randomly shift the image virtially and horizontally (translation).
     """
     trans_x = range_x * (np.random.rand() - 0.5)
     trans_y = range_y * (np.random.rand() - 0.5)
-    steering_angle = steering_angle + trans_x * 0.002
+    steering_angle += trans_x * 0.002
     trans_m = np.float32([[1, 0, trans_x], [0, 1, trans_y]])
     height, width = image.shape[:2]
     image = cv2.warpAffine(image, trans_m, (width, height))
@@ -96,12 +92,12 @@ def random_shadow(image):
     xm, ym = np.mgrid[0:IMAGE_HEIGHT, 0:IMAGE_WIDTH]
 
     # mathematically speaking, we want to set 1 below the line and zero otherwise
-    # Our coordinate is up side down.  So, the above the line: 
+    # Our coordinate is up side down.  So, the above the line:
     # (ym-y1)/(xm-x1) > (y2-y1)/(x2-x1)
     # as x2 == x1 causes zero-division problem, we'll write it in the below form:
     # (ym-y1)*(x2-x1) - (y2-y1)*(xm-x1) > 0
     mask = np.zeros_like(image[:, :, 1])
-    mask[(ym - y1) * (x2 - x1) - (y2 - y1) * (xm - x1) > 0] = 1
+    mask[np.where((ym - y1) * (x2 - x1) - (y2 - y1) * (xm - x1) > 0)] = 1
 
     # choose which side should have shadow and adjust saturation
     cond = mask == np.random.randint(2)
@@ -152,7 +148,7 @@ def batch_generator(data_dir, image_paths, steering_angles, batch_size, is_train
             if is_training and np.random.rand() < 0.6:
                 image, steering_angle = augument(data_dir, center, left, right, steering_angle)
             else:
-                image = load_image(data_dir, center) 
+                image = load_image(data_dir, center)
             # add the image and steering angle to the batch
             images[i] = preprocess(image)
             steers[i] = steering_angle
@@ -160,3 +156,4 @@ def batch_generator(data_dir, image_paths, steering_angles, batch_size, is_train
             if i == batch_size:
                 break
         yield images, steers
+

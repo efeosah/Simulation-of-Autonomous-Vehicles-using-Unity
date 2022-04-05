@@ -18,15 +18,6 @@ public class RoadBuilder : MonoBehaviour, IWaitCarPath
     public float[] roadOffsets;
     public float[] roadWidths;
 
-    [Header("Terrain params (not working)")]
-    public bool doFlattenAtStart = true;
-    public bool doErodeTerrain = true;
-    public bool doGenerateTerrain = true;
-    public bool doFlattenArroundRoad = true;
-    public bool doLiftRoadToTerrain = false;
-    //public TerrainToolkit terToolkit;
-    public Terrain terrain;
-
     
 
     Texture customRoadTexure;
@@ -34,13 +25,7 @@ public class RoadBuilder : MonoBehaviour, IWaitCarPath
 
     void Start()
     {
-        //if (terToolkit != null && doErodeTerrain)
-        //{
-        //    //terToolkit.FastThermalErosion(20, 0.0f, 0.0f); //creates pits
-        //    //terToolkit.FastHydraulicErosion(100, 1.0f, 0.0f); //creates washouts
-        //    //terToolkit.FullHydraulicErosion(1, 10.0f, 1.0f, .3f, 2.0f);
-        //    terToolkit.SmoothTerrain(10, 1.0f);
-        //}
+        
     }
 
     public void Init()
@@ -170,15 +155,8 @@ public class RoadBuilder : MonoBehaviour, IWaitCarPath
                 vLength = posB - posA;
                 vWidth = Vector3.Cross(vLength, Vector3.up);
 
-                //if (terToolkit != null && doFlattenArroundRoad && (iVert % 10) == 0)
-                //{
-                //    terToolkit.FlattenArround(posA + vWidth.normalized * roadOffsetW, 10.0f, 30.0f);
-                //}
-
-                if (doLiftRoadToTerrain)
-                {
-                    posA.y = terrain.SampleHeight(posA) + 1.0f;
-                }
+               
+               
 
                 posA.y += roadHeightOffset;
             }
@@ -237,32 +215,7 @@ public class RoadBuilder : MonoBehaviour, IWaitCarPath
         mf.mesh = mesh;
         mc.sharedMesh = mesh; // once the mesh is created, asign it to the mesh collider
 
-        //if (terToolkit != null && doErodeTerrain)
-        //{
-        //    //terToolkit.FastThermalErosion(20, 0.0f, 0.0f); //creates pits
-        //    //terToolkit.FastHydraulicErosion(100, 1.0f, 0.0f); //creates washouts
-        //    //terToolkit.FullHydraulicErosion(1, 10.0f, 1.0f, .3f, 2.0f);
-        //    terToolkit.SmoothTerrain(10, 1.0f);
-
-        //    if (doFlattenArroundRoad)
-        //    {
-        //        foreach (PathNode n in path.nodes)
-        //        {
-        //            terToolkit.FlattenArround(n.pos, 8.0f, 10.0f);
-        //        }
-        //    }
-
-        //    float[] slopeStops = new float[2];
-        //    float[] heightStops = new float[2];
-
-        //    slopeStops[0] = 1.0f;
-        //    slopeStops[1] = 2.0f;
-
-        //    heightStops[0] = 4.0f;
-        //    heightStops[1] = 10.0f;
-
-        //    //terToolkit.TextureTerrain(slopeStops, heightStops, textures);
-        //}
+        
 
         return go;
     }

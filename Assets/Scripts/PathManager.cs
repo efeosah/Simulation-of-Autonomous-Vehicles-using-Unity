@@ -40,7 +40,6 @@ public class PathManager : MonoBehaviour
 
     [Header("Aux")]
     public GameObject[] initAfterCarPathLoaded; // Scripts using the IWaitCarPath interface to init after loading the CarPath
-    public GameObject[] challenges; // Challenges using the IWaitCarPath interface to init after loading the CarPath or on private API call
 
     Vector3 span = Vector3.zero;
     GameObject generated_mesh;
@@ -65,18 +64,18 @@ public class PathManager : MonoBehaviour
         {
             MakeRandomPath();
         }
-        //else if (doLoadScriptPath)
-        //{
-        //    //MakeScriptedPath();
-        //}
-        //else if (doLoadPointPath)
-        //{
-        //    MakePointPath();
-        //}
-        //else if (doLoadGameObjectPath)
-        //{
-        //    MakeGameObjectPath();
-        //}
+        else if (doLoadScriptPath)
+        {
+            //MakeScriptedPath();
+        }
+        else if (doLoadPointPath)
+        {
+            MakePointPath();
+        }
+        else if (doLoadGameObjectPath)
+        {
+            MakeGameObjectPath();
+        }
 
         if (carPath == null) // if no carPath was created, skip the following block of code
         {
@@ -331,81 +330,7 @@ public class PathManager : MonoBehaviour
     }
 
 
-    //void MakeScriptedPath()
-    //{
-    //    TrackScript script = new TrackScript();
-
-    //    if (script.Read(pathToLoad))
-    //    {
-    //        carPath = new CarPath();
-    //        TrackParams tparams = new TrackParams();
-    //        tparams.numToSet = 0;
-    //        tparams.rotCur = Quaternion.identity;
-    //        tparams.lastPos = startPos.position;
-
-    //        float dY = 0.0f;
-    //        float turn = 0f;
-
-    //        Vector3 s = startPos.position;
-    //        s.y = 0.5f;
-    //        span.x = 0f;
-    //        span.y = 0f;
-    //        span.z = spanDist;
-    //        float turnVal = 10.0f;
-
-    //        List<Vector3> points = new List<Vector3>();
-
-    //        foreach (TrackScriptElem se in script.track)
-    //        {
-    //            if (se.state == TrackParams.State.AngleDY)
-    //            {
-    //                turnVal = se.value;
-    //            }
-    //            else if (se.state == TrackParams.State.CurveY)
-    //            {
-    //                turn = 0.0f;
-    //                dY = se.value * turnVal;
-    //            }
-    //            else
-    //            {
-    //                dY = 0.0f;
-    //                turn = 0.0f;
-    //            }
-
-    //            for (int i = 0; i < se.numToSet; i++)
-    //            {
-
-    //                Vector3 np = s;
-    //                PathNode p = new PathNode();
-    //                p.pos = np;
-    //                points.Add(np);
-
-    //                turn = dY;
-
-    //                Quaternion rot = Quaternion.Euler(0.0f, turn, 0f);
-    //                span = rot * span.normalized;
-    //                span *= spanDist;
-    //                s = s + span;
-    //            }
-
-    //        }
-
-
-    //        for (int i = 0; i < points.Count; i++)
-    //        {
-    //            Vector3 point = points[(int)nfmod(i, (points.Count))];
-    //            Vector3 previous_point = points[(int)nfmod(i - 1, (points.Count))];
-    //            Vector3 next_point = points[(int)nfmod(i + 1, (points.Count))];
-
-    //            PathNode p = new PathNode();
-    //            p.pos = point;
-    //            p.rotation = Quaternion.LookRotation(next_point - previous_point, Vector3.up); ;
-    //            carPath.nodes.Add(p);
-    //            carPath.centerNodes.Add(p);
-    //        }
-
-    //    }
-    //}
+    
 
     void MakeRandomPath()
     {

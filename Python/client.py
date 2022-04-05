@@ -43,8 +43,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 prev_image_array = None
 
 #set min/max speed for our autonomous car
-MAX_SPEED = 25
-MIN_SPEED = 10
+MAX_SPEED = 10
+MIN_SPEED = 3
 
 #and a speed limit
 speed_limit = MAX_SPEED
@@ -52,9 +52,9 @@ speed_limit = MAX_SPEED
 #registering event handler for the server
 @sio.on('telemetry')
 def telemetry(sid, data):
+
     if data:
 
-        print(data)
         # The current steering angle of the car
         steering_angle = float(data["steering_angle"])
         # The current throttle of the car, how hard to push peddle
@@ -70,9 +70,10 @@ def telemetry(sid, data):
             # from PIL image to numpy array
             #image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             # predict the steering angle for the image
-            img = Variable(torch.cuda.FloatTensor([img], device=device)).permute(0,3,1,2)
+            img = Variable(torch.FloatTensor([img], device=device)).permute(0,3,1,2)
 
             steering_angle_throttle = model(img)
+           
             #steering_angle = steering_angle_throttle[0].item()
             #throttle = steering_angle_throttle[1].item()
             steering_angle = steering_angle_throttle.item()
@@ -86,8 +87,9 @@ def telemetry(sid, data):
             else:
                 speed_limit = MAX_SPEED
             throttle = 1.0 - steering_angle**2 - (speed/speed_limit)**2
+            # throttle = 0.1
 
-            print('sterring_angle: {} throttle: {} spped: {}'.format(steering_angle, throttle, speed))
+            print('steering_angle: {} throttle: {} speed: {}'.format(steering_angle, throttle, speed))
             send_control(steering_angle, throttle)
         except Exception as e:
             print(e)
@@ -107,6 +109,10 @@ def connect(sid, environ):
     print("connect ", sid)
     send_control(0, 0)
 
+
+@sio.on('disconnect')
+def disconnect(sid):
+    print("disconected ", sid)
 
 def send_control(steering_angle, throttle):
     sio.emit(
@@ -137,7 +143,6 @@ if __name__ == '__main__':
 
     #load model
     model = CNN().to(device)
-    print(args.model_weights)
     model.load_state_dict(torch.load(args.model_weights, map_location=device))
     model.eval()
 

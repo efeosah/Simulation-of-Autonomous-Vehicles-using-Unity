@@ -14,14 +14,14 @@ public class GUIHandler : MonoBehaviour
     Car car;
 
     //gameobjects to reference panels
-    public GameObject infoPanel;
+    //public GameObject infoPanel;
     public GameObject PIDController; //TODO
     public GameObject Logger;
-    public GameObject NetworkSteering;
     public GameObject menuPanel;
     public GameObject stopPanel;
     public GameObject ManualController; //TODO
     public GameObject Controllers;
+    public GameObject Client;
 
 
     //boolean flags for modes
@@ -36,73 +36,91 @@ public class GUIHandler : MonoBehaviour
     //roadbuilder object to manage track
     RoadBuilder rb;
     PathManager pm;
+    CarSpawner cs;
 
     //client object
-    public Server client;
+    private Client client;
 
 
     private void Awake()
     {
         //Find the canvas that holds all our panels
-        Canvas canvas = GameObject.FindObjectOfType<Canvas>();
-        menuPanel = canvas.transform.Find("MenuPanel").gameObject;
-        infoPanel = canvas.transform.Find("InfoPanel").gameObject;
-        stopPanel = canvas.transform.Find("StopPanel").gameObject;
+        //Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+        //menuPanel = canvas.transform.Find("MenuPanel").gameObject;
+        //infoPanel = canvas.transform.Find("InfoPanel").gameObject;
+        //stopPanel = canvas.transform.Find("StopPanel").gameObject;
 
 
-        car = GameObject.FindObjectOfType<Car>();
-        rb = GameObject.FindObjectOfType<RoadBuilder>();
-        pm = GameObject.FindObjectOfType<PathManager>();
+        
 
-        Controllers = car.gameObject.transform.GetChild(0).gameObject;
-        if(Controllers != null)
-        {
-            ManualController = Controllers.transform.GetChild(0).gameObject;
-            PIDController = Controllers.transform.GetChild(1).gameObject;
-            Logger = Controllers.transform.GetChild(2).gameObject;
-
-
-            if (ManualController != null)
-            {
-                ManualController.SetActive(false);
-            }
-
-            if(PIDController != null)
-            {
-                PIDController.SetActive(false);
-            }
-
-            if(Logger != null)
-            {
-                Logger.SetActive(false);
-            }
-        }
-
-        //client = GameObject.FindObjectOfType<Server>();
-        if (client != null)
-        {
-            //Debug.Log("Not Empty");
-
-            NetworkSteering = client.gameObject;
-            if (NetworkSteering == null)
-            {
-                //NetworkSteering.SetActive(false);
-            }
-        }
-        else
-        {
-            Debug.Log("Empty");
-        }
-        //if (NetworkSteering == null)
+        //try
         //{
-        //    Debug.Log("Empty");
+
+        //    //NetworkSteering = GameObject.Find("Client");
+        //    //client = NetworkSteering.GetComponent<Client>();
+
+        //    //NetworkSteering.SetActive(false);
+            
         //}
+        //catch (Exception e)
+        //{
+        //    print("Could'nt find client script, Error: "+ e);
+        //}
+
+        
+        
 
     }
 
     // Start is called before the first frame update
     void Start()
     {
+
+        car = GameObject.FindObjectOfType<Car>();
+        rb = GameObject.FindObjectOfType<RoadBuilder>();
+        pm = GameObject.FindObjectOfType<PathManager>();
+        cs = GameObject.FindObjectOfType<CarSpawner>();
+
+
+
+        if (car)
+        {
+            Controllers = car.gameObject.transform.GetChild(0).gameObject;
+            if (Controllers)
+            {
+                ManualController = Controllers.transform.GetChild(0).gameObject;
+                PIDController = Controllers.transform.GetChild(1).gameObject;
+                Logger = Controllers.transform.GetChild(2).gameObject;
+                Client = Controllers.transform.GetChild(3).gameObject;
+            }
+
+            if (ManualController)
+            {
+                ManualController.SetActive(false);
+            }
+
+            if (PIDController)
+            {
+                PIDController.SetActive(false);
+            }
+
+            if (Logger)
+            {
+                Logger.SetActive(false);
+            }
+
+            if (Client)
+            {
+                client = Client.GetComponent<Client>();
+                Client.SetActive(false);
+            }
+
+            //if (!infoPanel)
+            //{
+            //    print("Info panel not available");
+            //}
+
+        }
 
         
 
@@ -111,32 +129,38 @@ public class GUIHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateInfoPanel();
+        
         //UpdateRightPanel();
+        if(curMode == "None")
+        {
+            car.RequestThrottle(0.0f);
+            car.RequestSteering(0.0f);
+            car.RequestHandBrake(1.0f);
+            car.RequestFootBrake(1.0f);
+        }
     }
 
-   
-    //Update info panel top left
-    private void UpdateInfoPanel()
+    public string GetCurMode()
     {
-        //variables/info to show on left panel
-        float steering = car.GetSteering();
-        string mode = curMode;
-
-
-        //write infor into text object 
-        infoPanel.GetComponentInChildren<Text>().text =
-
-            "Steering: " + steering.ToString() + "\n" +
-            "Mode:    " + mode + "\n";
-
+        return curMode;
     }
+   
 
     //spawn/regen new track button
     public void OnSpawnNewTrack()
     {
         rb.DestroyRoad();
         pm.InitCarPath();
+
+        //reset overhead camera
+        if (GlobalState.overheadCamera)
+        {
+            GameObject OHCamGo = cs.cameras[0];
+            OverHeadCamera overheadCamera = OHCamGo.GetComponent<OverHeadCamera>();
+            overheadCamera.Init();
+        }
+
+
 
         //reset car transform
         //reset to beginnign of track
@@ -223,10 +247,11 @@ public class GUIHandler : MonoBehaviour
         {
             menuPanel.SetActive(false);
         }
-        //set PID drive only
-        //NetworkSteering.SetActive(true);
-        //client.Connect();
 
+        //NetworkSteering.SetActive(true);
+        //NetworkSteering.GetComponent<Client>().Connect();
+        Client.SetActive(true);
+        client.Connect();
         curMode = "NN Steering";
     }
 
@@ -266,7 +291,15 @@ public class GUIHandler : MonoBehaviour
 
         if (curMode == "NN Steering")
         {
-            NetworkSteering.SetActive(false);
+            client.Disconnect();
+
+            car.RequestThrottle(0.0f);
+            car.RequestSteering(0.0f);
+            car.RequestHandBrake(1.0f);
+            car.RequestFootBrake(1.0f);
+
+
+            Client.SetActive(false);
         }
 
 
@@ -280,5 +313,11 @@ public class GUIHandler : MonoBehaviour
         //End game here
         Application.Quit();
         //UnityEditor.EditorApplication.isPlaying = false;
+    }
+
+    public void onRestart()
+    {
+        car.transform.position = car.startPos;
+        car.transform.rotation = car.startRot;
     }
 }

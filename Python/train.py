@@ -12,7 +12,9 @@ tqdm.monitor_interval = 0
 import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-# from tensorboard_logger import configure, log_value
+from tensorboard_logger import configure, log_value
+# import tensorboard_logger
+
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 
 import argparse
@@ -27,9 +29,9 @@ import pdb
 
 
 
+
 #train model 
-def trainModel(args, model, train, evaluate):
-    #set our model into training mode
+def train_model(args, model, dataset_train, dataset_val):
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
@@ -39,14 +41,13 @@ def trainModel(args, model, train, evaluate):
     imgs_per_batch = args.batch_size
     optimizer.zero_grad()
     for epoch in range(args.nb_epoch):
-        sampler = RandomSampler(train, replacement=True, num_samples=args.samples_per_epoch)
+        sampler = RandomSampler(dataset_train, replacement=True, num_samples=args.samples_per_epoch)
         for i, sample_id in enumerate(sampler):
-            data = train[sample_id]
+            data = dataset_train[sample_id]
 
             label = data['steering_angle'] #, data['brake'], data['speed'], data['throttle']
-            # img_pth, label = utils.choose_image(data['cam'], label)
-            # print(img_pth)
-            img = cv2.imread(data['cam'])
+            img_pth, label = utils.choose_image(label)
+            img = cv2.imread(data[img_pth])
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = utils.preprocess(img)
             img, label = utils.random_flip(img, label)
@@ -79,12 +80,11 @@ def trainModel(args, model, train, evaluate):
                 print(log_str)
 
             if step%100==0:
-                # log_value('train_loss',loss.item(),step)
-                pass
+                log_value('train_loss',loss.item(),step)
 
             if step%5000==0:
-                val_loss = evaluateModel(model, evaluate, num_samples=3800)
-                # log_value('val_loss',val_loss,step)
+                val_loss = eval_model(model,dataset_val, num_samples=3800)
+                log_value('val_loss',val_loss,step)
                 log_str = \
                     'Epoch: {} | Iter: {} | Step: {} | Val Loss: {:.8f}'
                 log_str = log_str.format(
@@ -95,13 +95,20 @@ def trainModel(args, model, train, evaluate):
                 print(log_str)
                 model.train()
 
-            if step%5000==0:
+            if step%10000==0:
                 if not os.path.exists(args.model_dir):
                     os.makedirs(args.model_dir)
 
                 reflex_pth = os.path.join(
                     args.model_dir,
                     'model_{}'.format(step))
+                
+                state = {
+                    'epoch': epoch + 1,
+                    'state_dict': model.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    
+                }
                 torch.save(
                     model.state_dict(),
                     reflex_pth)
@@ -109,7 +116,7 @@ def trainModel(args, model, train, evaluate):
             step += 1
 
 
-def evaluateModel(model,dataset,num_samples):
+def eval_model(model,dataset,num_samples):
     model.eval()
     criterion = nn.MSELoss()
     step = 0
@@ -122,10 +129,9 @@ def evaluateModel(model,dataset,num_samples):
             break
 
         data = dataset[sample_id]
-        label = data['steering_angle']
-        # img_pth, label = utils.choose_image(data['steering_angle'])
+        img_pth, label = utils.choose_image(data['steering_angle'])
 
-        img = cv2.imread(data['cam'])
+        img = cv2.imread(data[img_pth])
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = utils.preprocess(img)
         img, label = utils.random_flip(img, label)
@@ -154,14 +160,30 @@ def main(args):
 
     model = CNN()
 
+    configure("log/")
+
     #create our dataset by extracting log file data
     dataset = Extract(args.data_dir)
     train_size = int(args.train_size * len(dataset))
     test_size = len(dataset) - train_size
     dataset_train, dataset_val = torch.utils.data.dataset.random_split(dataset,[train_size, test_size])
 
+    if(args.resume_train):
+        # print("==> Loading checkpoint ...")
+        # # use pre-trained model
+        # checkpoint = torch.load(args.model,
+        #                         map_location=lambda storage, loc: storage)
 
-    trainModel(args, model,dataset_train, dataset_val)
+        # print("==> Loading checkpoint model successfully ...")
+        # args.start_epoch = checkpoint['epoch']
+        # model.load_state_dict(checkpoint['state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
+        # scheduler.load_state_dict(checkpoint['scheduler'])
+        ###TODO
+        pass
+        
+    else:
+        train_model(args, model,dataset_train, dataset_val)
 
 if __name__ == '__main__':
 
@@ -170,9 +192,12 @@ if __name__ == '__main__':
     parser.add_argument('-m', help='model directory',       dest='model_dir',         type=str,   default='models')
     parser.add_argument('-t', help='train size fraction',   dest='train_size',        type=float, default=0.8)
     parser.add_argument('-k', help='drop out probability',  dest='keep_prob',         type=float, default=0.5)
-    parser.add_argument('-n', help='number of epochs',      dest='nb_epoch',          type=int,   default=5)
-    parser.add_argument('-s', help='samples per epoch',     dest='samples_per_epoch', type=int,   default=100)
+    parser.add_argument('-n', help='number of epochs',      dest='nb_epoch',          type=int,   default=10)
+    parser.add_argument('-s', help='samples per epoch',     dest='samples_per_epoch', type=int,   default=20000)
     parser.add_argument('-b', help='batch size',            dest='batch_size',        type=int,   default=40)
     parser.add_argument('-l', help='learning rate',         dest='learning_rate',     type=float, default=1.0e-4)
+    parser.add_argument('-r', help='resume training',         dest='resume_train',     type=bool, default=False)
+
+
     args = parser.parse_args()
     main(args)

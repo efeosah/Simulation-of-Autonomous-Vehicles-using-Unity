@@ -54,7 +54,7 @@ public class Logger : MonoBehaviour
     {
 
         
-        Debug.Log(Application.dataPath);
+        //Debug.Log(Application.dataPath);
         
     }
 
@@ -97,6 +97,12 @@ public class Logger : MonoBehaviour
         {
             return;
         }
+
+        if (!CamSensor_Centre) { print("cam1"); return; }
+
+        if (!CamSensor_Left) { print("cam2"); return; }
+
+        if (!CamSensor_Right) { print("cam3"); return; }
         
         timeSinceLastLog += Time.deltaTime;
         //gameObject.transform.Rotate(90.0f/50.0f, 0.0f/50.0f, 90.0f/50.0f, Space.Self);
@@ -109,6 +115,7 @@ public class Logger : MonoBehaviour
         timeSinceLastLog -= (1.0f / FPS);
 
         LogDataToCSV();
+        //SaveCamSensor(CamSensor_Centre, CamSensor_Left, CamSensor_Right, "");
         SaveCamSensor(CamSensor_Centre, "CenterCam_");
         SaveCamSensor(CamSensor_Left, "LeftCam_");
         SaveCamSensor(CamSensor_Right, "RightCam_");
@@ -133,46 +140,90 @@ public class Logger : MonoBehaviour
     private void LogDataToCSV()
     {
         //data we wish to collect
-        float curSteerAngle = carControl.GetSteering();
+        float curSteerAngle = carControl.GetSteering() / carControl.GetMaxSteering();
         float curThrottle = carControl.GetThrottle();
         //float curSpeed = carControl.GetVelocity();
         float curBrake = carControl.GetHandBrake();
-        string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".png";
-        string camImage_Left = GetFilePath() + "LeftCam_" + curFrameCount + ".png";
-        string camImage_Right = GetFilePath() + "RightCam_" + curFrameCount + ".png";
+        string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".jpg";
+        string camImage_Left = GetFilePath() + "LeftCam_" + curFrameCount + ".jpg";
+        string camImage_Right = GetFilePath() + "RightCam_" + curFrameCount + ".jpg";
 
-        Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString()
-            + " Brake: " + curBrake.ToString() + " Image Link: " + camImage);
+        //Debug.Log("Steering Angle: " + curSteerAngle.ToString() + " Throttle: " + curThrottle.ToString()
+        //    + " Brake: " + curBrake.ToString() + " Image Link: " + camImage);
         //if (!(curSteerAngle == 0 || curThrottle == 0 || curBrake == 0))
         //{
 
         //}
-        sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5}", camImage,camImage_Left,camImage_Right, curSteerAngle.ToString(), curThrottle.ToString(), curBrake.ToString()));
+        sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", camImage,camImage_Left,camImage_Right, curSteerAngle.ToString(),curThrottle.ToString(), curBrake.ToString(), '0'));
         sw.Flush();
     }
 
     //Save the camera sensor to an image. Use the suffix to distinguish between cameras.
-    void SaveCamSensor(CameraSensor cs, string prefix)
+    void SaveCamSensor(CameraSensor cs1, CameraSensor cs2, CameraSensor cs3, string prefix)
     {
-        if (cs != null)
+
+
+        Texture2D image1 = cs1.GetImage();
+        Texture2D image2 = cs2.GetImage();
+        Texture2D image3 = cs3.GetImage();
+
+        //image.GetPixelData
+
+        ImageSaveJob ij1 = new ImageSaveJob();
+        ImageSaveJob ij2 = new ImageSaveJob();
+        ImageSaveJob ij3 = new ImageSaveJob();
+
+
+
+        ij1.filename = GetFilePath() + "CenterCam_" + curFrameCount + ".jpg"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+        //Debug.Log(ij1.filename);
+        ij1.bytes = image1.EncodeToJPG();
+
+        ij1.filename = GetFilePath() + "LeftCam_" + curFrameCount + ".jpg"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+        //Debug.Log(ij1.filename);
+        ij1.bytes = image2.EncodeToJPG();
+
+        ij1.filename = GetFilePath() + "RightCam_" + curFrameCount + ".jpg"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+        //Debug.Log(ij1.filename);
+        ij1.bytes = image3.EncodeToJPG();
+
+        lock (this)
         {
-            Texture2D image = cs.GetImage();
-            //image.GetPixelData
+            imagesToSave.Add(ij1);
+            imagesToSave.Add(ij2);
+            imagesToSave.Add(ij3);
 
-            ImageSaveJob ij = new ImageSaveJob();
-
-
-            ij.filename = GetFilePath() + prefix + curFrameCount + ".png"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
-
-            Debug.Log(ij.filename);
-
-            ij.bytes = image.EncodeToPNG();
-
-            lock (this)
-            {
-                imagesToSave.Add(ij);
-            }
         }
+
+    }
+
+
+    //Save the camera sensor to an image. Use the suffix to distinguish between cameras.
+    void SaveCamSensor(CameraSensor cs1, string prefix)
+    {
+
+
+        Texture2D image1 = cs1.GetImage();
+        
+
+        //image.GetPixelData
+
+        ImageSaveJob ij1 = new ImageSaveJob();
+       
+
+
+        ij1.filename = GetFilePath() + prefix + curFrameCount + ".jpg"; //string.Format("{0}_{1,8:D8}.png", prefix, "CenterCam_" + curFrameCount);
+        //Debug.Log(ij1.filename);
+        ij1.bytes = image1.EncodeToJPG();
+
+
+        lock (this)
+        {
+            imagesToSave.Add(ij1);
+            
+
+        }
+
     }
 
     public void SaverThread()

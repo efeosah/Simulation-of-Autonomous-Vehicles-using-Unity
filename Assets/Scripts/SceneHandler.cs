@@ -11,9 +11,19 @@ public class SceneHandler : MonoBehaviour
         
     }
 
-    public void onSimulate()
+    public void onGenerated()
     {
-        SceneManager.LoadScene("simulation");
+        SceneManager.LoadScene("GeneratedRoad");
+    }
+
+    public void onTrack()
+    {
+        SceneManager.LoadScene("Map1");
+    }
+
+    public void onTrack2()
+    {
+        SceneManager.LoadScene("Map2");
     }
 
     // Update is called once per frame
