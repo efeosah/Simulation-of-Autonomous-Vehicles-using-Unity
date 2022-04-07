@@ -2,18 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using System;
 
 public class InfoUpdater : MonoBehaviour
 {
 
     [SerializeField] string curMode;
-    [SerializeField] Car car;
+    [SerializeField] CarController car;
     [SerializeField] GUIHandler guihandler;
 
     // Start is called before the first frame update
     void Start()
     {
-        car = GameObject.FindObjectOfType<Car>();
+        car = GameObject.FindObjectOfType<CarController>();
 
     }
 
@@ -32,7 +33,16 @@ public class InfoUpdater : MonoBehaviour
     private void UpdateInfoPanel()
     {
         //variables/info to show on left panel
-        float steering = car.GetSteering();
+        float steering = (float)Math.Round(car.CurrentSteerAngle, 2);
+        float speed = (float)Math.Round(car.CurrentSpeed, 2);
+
+        if(speed < 0.0f)
+        {
+            speed = 0.0f;
+        }
+        float throttle = (float)Math.Round(car.AccelInput, 2);
+
+        string speedType = car.Type;
         string mode = curMode;
 
 
@@ -41,7 +51,9 @@ public class InfoUpdater : MonoBehaviour
         gameObject.GetComponentInChildren<Text>().text =
 
             "Steering: " + steering.ToString() + "\n" +
-            "Mode:    " + mode + "\n";
+            "Speed: " + speed + speedType + "\n" +
+            "Throttle: " + throttle.ToString() + "\n" +
+            "Mode: " + mode + "\n";
 
     }
 }

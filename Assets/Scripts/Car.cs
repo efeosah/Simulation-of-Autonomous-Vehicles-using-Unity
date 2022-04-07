@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class Car : MonoBehaviour, ICar{
+public class Car1 : MonoBehaviour, ICar{
 
 	//public CarSpawner carSpawner;
 	public WheelCollider[] wheelColliders;
@@ -274,4 +274,14 @@ public class Car : MonoBehaviour, ICar{
 	{
 		last_collision = col.gameObject.name;
 	}
+
+    public void RequestSpeed(float val)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public float GetSpeed()
+    {
+        throw new System.NotImplementedException();
+    }
 }

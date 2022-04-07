@@ -23,7 +23,7 @@ public class Logger : MonoBehaviour
     public int curFrameCount = 0;
     public int maxFrameCount;
     //[SerializeField] GameObject car;
-    private Car carControl;
+    private CarController carControl;
     private float timeSinceLastLog = 0.0f;
  
 
@@ -68,7 +68,7 @@ public class Logger : MonoBehaviour
     {
         //maxFrameCount = 10000;
 
-        carControl = gameObject.GetComponentInParent<Car>();
+        carControl = gameObject.GetComponentInParent<CarController>();
         
 
         if(isLog && carControl != null)
@@ -140,10 +140,16 @@ public class Logger : MonoBehaviour
     private void LogDataToCSV()
     {
         //data we wish to collect
-        float curSteerAngle = carControl.GetSteering() / carControl.GetMaxSteering();
-        float curThrottle = carControl.GetThrottle();
-        //float curSpeed = carControl.GetVelocity();
-        float curBrake = carControl.GetHandBrake();
+        //float curSteerAngle = carControl.GetSteering() / carControl.GetMaxSteering();
+        //float curThrottle = carControl.GetThrottle();
+        //float curSpeed = carControl.GetSpeed();
+        //float curBrake = carControl.GetHandBrake();
+
+        float curSteerAngle = carControl.CurrentSteerAngle / carControl.MaxSteer;
+        float curThrottle = carControl.AccelInput;
+        float curSpeed = carControl.CurrentSpeed;
+        float curBrake = carControl.BrakeInput;
+
         string camImage = GetFilePath() + "CenterCam_" + curFrameCount + ".jpg";
         string camImage_Left = GetFilePath() + "LeftCam_" + curFrameCount + ".jpg";
         string camImage_Right = GetFilePath() + "RightCam_" + curFrameCount + ".jpg";
@@ -154,7 +160,7 @@ public class Logger : MonoBehaviour
         //{
 
         //}
-        sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", camImage,camImage_Left,camImage_Right, curSteerAngle.ToString(),curThrottle.ToString(), curBrake.ToString(), '0'));
+        sw.WriteLine(string.Format("{0},{1},{2},{3},{4},{5},{6}", camImage,camImage_Left,camImage_Right, curSteerAngle.ToString(),curThrottle.ToString(), curBrake.ToString(), curSpeed.ToString()));
         sw.Flush();
     }
 

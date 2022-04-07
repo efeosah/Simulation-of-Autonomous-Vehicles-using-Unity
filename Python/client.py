@@ -43,8 +43,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 prev_image_array = None
 
 #set min/max speed for our autonomous car
-MAX_SPEED = 10
-MIN_SPEED = 3
+MAX_SPEED = 25
+MIN_SPEED = 10
 
 #and a speed limit
 speed_limit = MAX_SPEED

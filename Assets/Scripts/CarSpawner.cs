@@ -232,8 +232,8 @@ public class CarSpawner : MonoBehaviour
         for (int iCar = 0; iCar < carCount; iCar++)
         {
             GameObject go = cars[iCar];
-            Car car = go.GetComponent<Car>();
-            if (Vector3.Distance(car.startPos, pos) < 1.0f)
+            CarController car = go.GetComponent<CarController>();
+            if (Vector3.Distance(car.StartPosition, pos) < 1.0f)
                 return true;
         }
 
@@ -300,7 +300,7 @@ public class CarSpawner : MonoBehaviour
 
         (Vector3 startPos, Quaternion startRot) = GetCarStartPosRot();
         go.transform.SetPositionAndRotation(startPos, startRot);
-        go.GetComponent<Car>().SavePosRot();
+        go.GetComponent<CarController>().SavePosRot();
         UpdateSplitScreenCams();
 
         //GameObject TcpClientObj = getChildGameObject(go, "TCPClient");

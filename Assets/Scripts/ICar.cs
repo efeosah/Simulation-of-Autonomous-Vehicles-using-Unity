@@ -20,6 +20,8 @@ public interface ICar
 
 	void RequestHandBrake(float val);
 
+	void RequestSpeed(float val);
+
 
 	//query last input given.
 	float GetSteering();
@@ -29,6 +31,8 @@ public interface ICar
 	float GetFootBrake();
 
 	float GetHandBrake();
+
+	float GetSpeed();
 
 
 	//query state.

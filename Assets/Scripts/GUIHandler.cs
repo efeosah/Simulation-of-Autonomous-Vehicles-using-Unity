@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class GUIHandler : MonoBehaviour
 {
     //car controller game object
-    Car car;
+    CarController car;
 
     //gameobjects to reference panels
     //public GameObject infoPanel;
@@ -76,7 +76,7 @@ public class GUIHandler : MonoBehaviour
     void Start()
     {
 
-        car = GameObject.FindObjectOfType<Car>();
+        car = GameObject.FindObjectOfType<CarController>();
         rb = GameObject.FindObjectOfType<RoadBuilder>();
         pm = GameObject.FindObjectOfType<PathManager>();
         cs = GameObject.FindObjectOfType<CarSpawner>();
@@ -85,6 +85,8 @@ public class GUIHandler : MonoBehaviour
 
         if (car)
         {
+
+
             Controllers = car.gameObject.transform.GetChild(0).gameObject;
             if (Controllers)
             {
@@ -131,12 +133,19 @@ public class GUIHandler : MonoBehaviour
     {
         
         //UpdateRightPanel();
-        if(curMode == "None")
+        if(curMode != "None")
         {
-            car.RequestThrottle(0.0f);
-            car.RequestSteering(0.0f);
-            car.RequestHandBrake(1.0f);
-            car.RequestFootBrake(1.0f);
+            //car.RequestThrottle(0.0f);
+            //car.RequestSteering(0.0f);
+            //car.RequestHandBrake(1.0f);
+            //car.RequestFootBrake(1.0f);
+            //car.Move(0.0f, 0.0f, 0.0f, 1.0f);
+            //car.Move(0.0f, 0.0f, 0.0f, 0.0f);
+            //car.Stop();
+            //car.Resume();
+
+
+
         }
     }
 
@@ -166,8 +175,8 @@ public class GUIHandler : MonoBehaviour
         //reset to beginnign of track
         //GameObject StartPos
 
-        car.transform.position = car.startPos;
-        car.transform.rotation = car.startRot;
+        car.transform.position = car.StartPosition;
+        car.transform.rotation = car.StartRotation;
     }
 
     public void OnManualTrain()
@@ -183,6 +192,9 @@ public class GUIHandler : MonoBehaviour
         //set manual train only
         ManualController.SetActive(true);
         Logger.SetActive(true);
+
+        //car.Move(0.0f, -1.0f, -1.0f, 0.0f);
+
         curMode = "Manual Training";
 
     }
@@ -293,14 +305,16 @@ public class GUIHandler : MonoBehaviour
         {
             client.Disconnect();
 
-            car.RequestThrottle(0.0f);
-            car.RequestSteering(0.0f);
-            car.RequestHandBrake(1.0f);
-            car.RequestFootBrake(1.0f);
+            //car.RequestThrottle(0.0f);
+            //car.RequestSteering(0.0f);
+            //car.RequestHandBrake(1.0f);
+            //car.RequestFootBrake(1.0f);
 
 
             Client.SetActive(false);
         }
+
+        //car.Stop();
 
 
         //car.ToggleModeSelect();
@@ -317,7 +331,7 @@ public class GUIHandler : MonoBehaviour
 
     public void onRestart()
     {
-        car.transform.position = car.startPos;
-        car.transform.rotation = car.startRot;
+        car.transform.position = car.StartPosition;
+        car.transform.rotation = car.StartRotation;
     }
 }

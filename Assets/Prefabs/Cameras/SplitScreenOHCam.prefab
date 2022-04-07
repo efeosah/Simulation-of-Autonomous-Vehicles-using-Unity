@@ -53,13 +53,13 @@ Camera:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1
+    width: 0.5
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 30
+  orthographic size: 66
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -89,4 +89,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathManager: {fileID: 0}
   margin: 5
-  height: 10
+  height: 20

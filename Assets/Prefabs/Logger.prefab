@@ -43,7 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 960f5d5e00a61428482ba7d7dae40404, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CamSensor1: {fileID: 0}
+  CamSensor_Centre: {fileID: 0}
+  CamSensor_Left: {fileID: 0}
+  CamSensor_Right: {fileID: 0}
   curFrameCount: 0
-  maxFrameCount: 10000
+  maxFrameCount: 20000
   isLog: 1

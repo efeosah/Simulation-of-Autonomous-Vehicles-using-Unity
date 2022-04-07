@@ -7,7 +7,9 @@ public class PIDController : MonoBehaviour
 {
 
     public GameObject carObj;
-    public ICar car;
+    //public ICar car;
+    public CarController car;
+
     public PathManager pm;
 
     float errA, errB;
@@ -26,7 +28,7 @@ public class PIDController : MonoBehaviour
     float diffErr = 0f;
     public float prevErr = 0f;
     public float steeringReq = 0.0f;
-    public float throttleVal = 0.2f;
+    public float throttleVal = 0.5f;
     public float totalError = 0f;
     public float absTotalError = 0f;
     public float totalAcc = 0f;
@@ -49,7 +51,7 @@ public class PIDController : MonoBehaviour
 
     void Awake()
     {
-        car = carObj.GetComponent<ICar>();
+        car = carObj.GetComponent<CarController>();
         pm = GameObject.FindObjectOfType<PathManager>();
 
         if (pm == null)
@@ -86,19 +88,22 @@ public class PIDController : MonoBehaviour
         absTotalError = 0f;
 
         iActiveSpan = pm.carPath.GetClosestSpanIndex(carObj.transform.position);
+        //car.Resume();
     }
 
     public void StopDriving()
     {
         isDriving = false;
-        car.RequestThrottle(0.0f);
-        car.RequestHandBrake(1.0f);
-        car.RequestFootBrake(1.0f);
-        car.RequestSteering(0.0f);
+        //car.RequestThrottle(0.0f);
+        //car.RequestHandBrake(1.0f);
+        //car.RequestFootBrake(1.0f);
+        //car.RequestSteering(0.0f);
+        //car.Move(0, 0, 0, 1.0f);
+        //car.Stop();
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (!isDriving) { return; }
 
@@ -115,11 +120,17 @@ public class PIDController : MonoBehaviour
         // Debug.Log(steeringReq);
         steeringReq = Mathf.Clamp(steeringReq, -car.GetMaxSteering(), car.GetMaxSteering());
 
-        car.RequestSteering(steeringReq);
+        //car.RequestSteering(steeringReq);
 
         // need to refactor this
         if (car.GetVelocity().magnitude < maxSpeed)
-            car.RequestThrottle(throttleVal);
+        {
+            //car.RequestThrottle(throttleVal);
+        }
+
+
+        car.Move(steeringReq, throttleVal, throttleVal, 0);
+
 
 
         if (pid_steering != null)
