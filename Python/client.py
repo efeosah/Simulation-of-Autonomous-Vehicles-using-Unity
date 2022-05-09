@@ -130,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument(
         'model_weights',
         type=str,
-        help='Path to model h5 file. Model should be on the same path.'
+        help='Path to model file. Model should be in the same path.'
     )
     parser.add_argument(
         'image_folder',

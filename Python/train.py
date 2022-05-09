@@ -1,6 +1,7 @@
 ###Train model 
 
 ##Libraries and Imports
+import datetime
 import os
 import time
 import itertools
@@ -13,7 +14,18 @@ import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from tensorboard_logger import configure, log_value
-# import tensorboard_logger
+
+# from torch.utils.tensorboard import SummaryWriter
+
+
+# current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+# train_log_dir = 'logs/' + current_time + 'log'
+# test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
+# summary_writer = SummaryWriter(train_log_dir)
+# test_summary_writer = SummaryWriter(test_log_dir)
+
+# import torchvision
+
 
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 
@@ -26,7 +38,7 @@ from data import Extract
 import utils
 
 import pdb
-
+import sys
 
 
 
@@ -35,7 +47,7 @@ def train_model(args, model, dataset_train, dataset_val):
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss()    
 
     step = 0
     imgs_per_batch = args.batch_size
@@ -59,6 +71,13 @@ def train_model(args, model, dataset_train, dataset_val):
             label = Variable(torch.FloatTensor(label))
             img = img.permute(0,3,1,2)
 
+
+            ##write img to tensorboard
+            # img_grid = torchvision.utils.make_grid(img)
+            # writer.add_image('image', img_grid)
+            # writer.add_graph(model, img)
+            # writer.close()
+
             out_vec = model(img)
             loss = criterion(out_vec,label)
 
@@ -81,10 +100,12 @@ def train_model(args, model, dataset_train, dataset_val):
 
             if step%100==0:
                 log_value('train_loss',loss.item(),step)
+                # summary_writer.add_scalar('Loss/train', loss.item(), step)
 
             if step%5000==0:
                 val_loss = eval_model(model,dataset_val, num_samples=3800)
                 log_value('val_loss',val_loss,step)
+                # summary_writer.add_scalar('Loss/test', val_loss, step)
                 log_str = \
                     'Epoch: {} | Iter: {} | Step: {} | Val Loss: {:.8f}'
                 log_str = log_str.format(
@@ -95,25 +116,51 @@ def train_model(args, model, dataset_train, dataset_val):
                 print(log_str)
                 model.train()
 
-            if step%10000==0:
-                if not os.path.exists(args.model_dir):
-                    os.makedirs(args.model_dir)
+            # if step%5000==0:
+            #     if not os.path.exists(args.model_dir):
+            #         os.makedirs(args.model_dir)
 
-                reflex_pth = os.path.join(
-                    args.model_dir,
-                    'model_{}'.format(step))
+            #     reflex_pth = os.path.join(
+            #         args.model_dir,
+            #         'model_{}'.format(step))
                 
-                state = {
-                    'epoch': epoch + 1,
-                    'state_dict': model.state_dict(),
-                    'optimizer': optimizer.state_dict(),
+            #     state = {
+            #         'epoch': epoch + 1,
+            #         'state_dict': model.state_dict(),
+            #         'optimizer': optimizer.state_dict(),
                     
-                }
-                torch.save(
-                    model.state_dict(),
-                    reflex_pth)
+            #     }
+            #     torch.save(
+            #         model.state_dict(),
+            #         reflex_pth)
 
             step += 1
+
+
+
+    if not os.path.exists(args.model_dir):
+                    os.makedirs(args.model_dir)
+
+    reflex_pth = os.path.join(
+        args.model_dir,
+        'model_')
+    
+    state = {
+        'epoch': epoch + 1,
+        'state_dict': model.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        
+    }
+    torch.save(
+        model.state_dict(),
+        reflex_pth) 
+
+    # summary_writer.close()
+    # test_summary_writer.close()  
+
+    
+
+        
 
 
 def eval_model(model,dataset,num_samples):
@@ -160,6 +207,8 @@ def main(args):
 
     model = CNN()
 
+    ##configure log using tensorboard_logger
+    ##could also use SummaryWriter from tensor board if that is available 
     configure("log/")
 
     #create our dataset by extracting log file data
@@ -167,6 +216,10 @@ def main(args):
     train_size = int(args.train_size * len(dataset))
     test_size = len(dataset) - train_size
     dataset_train, dataset_val = torch.utils.data.dataset.random_split(dataset,[train_size, test_size])
+
+    # args.samples_per_epoch = len(dataset)//args.batch_size
+
+    # print(args.samples_per_epoch)
 
     if(args.resume_train):
         # print("==> Loading checkpoint ...")

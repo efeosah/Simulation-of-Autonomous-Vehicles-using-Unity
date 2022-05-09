@@ -1,4 +1,4 @@
-name: sd_car
+name: soav_
 channels:
     - conda-forge
     - pytorch
@@ -11,7 +11,7 @@ dependencies:
     - eventlet
     - flask-socketio
     - tqdm
-    - pytorch 
+    - pytorch
     - torchvision
     - cudatoolkit
     - pip:

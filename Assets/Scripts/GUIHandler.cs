@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// GUI handler script to handle GUI events
@@ -325,8 +326,10 @@ public class GUIHandler : MonoBehaviour
     public void OnExit()
     {
         //End game here
-        Application.Quit();
+        //Application.Quit();
         //UnityEditor.EditorApplication.isPlaying = false;
+        SceneManager.LoadScene("Main");
+
     }
 
     public void onRestart()

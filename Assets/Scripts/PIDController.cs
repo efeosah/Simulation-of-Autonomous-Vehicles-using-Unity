@@ -2,6 +2,11 @@
 using System.Collections;
 using UnityEngine.UI;
 
+/// <summary>
+/// PID Controller written by Tawn Kramer
+/// 
+/// </summary>
+
 
 public class PIDController : MonoBehaviour
 {

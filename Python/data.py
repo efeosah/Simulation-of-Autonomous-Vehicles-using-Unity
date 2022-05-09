@@ -42,7 +42,3 @@ class Extract(Dataset):
         return len(self.data)
 
 
-# if __name__ == '__main__':
-#     #test
-#     dataset = Extract()
-#     ##print(dataset[0]['img'].shape)
